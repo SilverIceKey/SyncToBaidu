@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -O2
+CFLAGS ?= -Wall -O2
 LDFLAGS = -lconfig
 TARGET = sync_to_baidu
 CONFIG_DIR = /etc/sync_to_baidu
@@ -12,11 +12,6 @@ $(TARGET): src/sync_to_baidu.c
 	$(CC) $(CFLAGS) -o $(TARGET) src/sync_to_baidu.c $(LDFLAGS)
 
 install: $(TARGET)
-	# 安装 libconfig 和 bypy
-	sudo apt-get update
-	sudo apt-get install -y libconfig-dev python3 python3-pip
-	pip3 install bypy
-	
 	# 安装程序和配置文件
 	install -m 0755 $(TARGET) /usr/local/bin/$(TARGET)
 	mkdir -p $(CONFIG_DIR)
@@ -39,4 +34,3 @@ uninstall:
 
 clean:
 	rm -f $(TARGET)
-
