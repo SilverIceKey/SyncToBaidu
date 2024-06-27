@@ -1,0 +1,42 @@
+# 编译生成的文件
+/sync_to_baidu
+
+# 日志文件
+*.log
+/var/log/sync_to_baidu.log
+
+# 操作系统生成的文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.swp
+*.bak
+*.swo
+
+# 编译缓存
+*.o
+*.obj
+
+# 编辑器生成的配置文件和备份文件
+*~
+*.swp
+*.swo
+*.bak
+*.tmp
+*.pid
+*.seed
+
+# 排除配置文件
+# /config/config.conf
+
+# 依赖库
+*.d
+*.so
+*.dylib
+*.dll
+
+# 忽略 Makefile 中的自动生成文件
+#/Makefile
+
