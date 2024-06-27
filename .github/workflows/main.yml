@@ -1,0 +1,185 @@
+name: C/C++ CI and Release
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        arch: [x64, arm64]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up dependencies on Linux
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libconfig-dev python3 python3-pip
+        pip3 install bypy
+
+    - name: Set up dependencies on macOS
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew update
+        brew install libconfig python
+        pip3 install bypy
+
+    - name: Set up dependencies on Windows
+      if: matrix.os == 'windows-latest'
+      run: |
+        choco install mingw -y
+        choco install python -y
+        pip install bypy
+
+    - name: Build
+      run: |
+        if [ "${{ matrix.arch }}" == "x64" ]; then
+          export CFLAGS="-m64"
+        elif [ "${{ matrix.arch }}" == "arm64" ]; then
+          export CFLAGS="-march=armv8-a"
+        fi
+        make
+
+    - name: Rename binary
+      run: |
+        if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+          mv sync_to_baidu sync_to_baidu-${{ matrix.os }}-${{ matrix.arch }}
+        elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+          mv sync_to_baidu sync_to_baidu-${{ matrix.os }}-${{ matrix.arch }}
+        elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+          mv sync_to_baidu.exe sync_to_baidu-${{ matrix.os }}-${{ matrix.arch }}.exe
+        fi
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: binary-${{ matrix.os }}-${{ matrix.arch }}
+        path: sync_to_baidu-${{ matrix.os }}-${{ matrix.arch }}*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download artifact for Linux x64
+      uses: actions/download-artifact@v3
+      with:
+        name: binary-ubuntu-latest-x64
+        path: ./binaries/ubuntu/x64
+
+    - name: Download artifact for Linux arm64
+      uses: actions/download-artifact@v3
+      with:
+        name: binary-ubuntu-latest-arm64
+        path: ./binaries/ubuntu/arm64
+
+    - name: Download artifact for macOS x64
+      uses: actions/download-artifact@v3
+      with:
+        name: binary-macos-latest-x64
+        path: ./binaries/macos/x64
+
+    - name: Download artifact for macOS arm64
+      uses: actions/download-artifact@v3
+      with:
+        name: binary-macos-latest-arm64
+        path: ./binaries/macos/arm64
+
+    - name: Download artifact for Windows x64
+      uses: actions/download-artifact@v3
+      with:
+        name: binary-windows-latest-x64
+        path: ./binaries/windows/x64
+
+    - name: Download artifact for Windows arm64
+      uses: actions/download-artifact@v3
+      with:
+        name: binary-windows-latest-arm64
+        path: ./binaries/windows/arm64
+
+    - name: Read version
+      id: get_version
+      run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ env.VERSION }}
+        release_name: Release v${{ env.VERSION }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset for Linux x64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/ubuntu/x64/sync_to_baidu-ubuntu-latest-x64
+        asset_name: sync_to_baidu-ubuntu-latest-x64
+        asset_content_type: application/octet-stream
+
+    - name: Upload Release Asset for Linux arm64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/ubuntu/arm64/sync_to_baidu-ubuntu-latest-arm64
+        asset_name: sync_to_baidu-ubuntu-latest-arm64
+        asset_content_type: application/octet-stream
+
+    - name: Upload Release Asset for macOS x64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/macos/x64/sync_to_baidu-macos-latest-x64
+        asset_name: sync_to_baidu-macos-latest-x64
+        asset_content_type: application/octet-stream
+
+    - name: Upload Release Asset for macOS arm64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/macos/arm64/sync_to_baidu-macos-latest-arm64
+        asset_name: sync_to_baidu-macos-latest-arm64
+        asset_content_type: application/octet-stream
+
+    - name: Upload Release Asset for Windows x64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/windows/x64/sync_to_baidu-windows-latest-x64.exe
+        asset_name: sync_to_baidu-windows-latest-x64.exe
+        asset_content_type: application/octet-stream
+
+    - name: Upload Release Asset for Windows arm64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/windows/arm64/sync_to_baidu-windows-latest-arm64.exe
+        asset_name: sync_to_baidu-windows-latest-arm64.exe
+        asset_content_type: application/octet-stream
