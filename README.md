@@ -40,7 +40,8 @@ SyncToBaidu 是一个使用`bypy`同步本地目录到百度云的工具。该�
 示例配置文件：
 
 ```ini
-[Paths]
-sync_dir = /path/to/syncDir
-remote_dir = /remote/path/on/baiduyun
+Paths = {
+    sync_dir = "/path/to/syncDir"
+    remote_dir = "/remote/path/on/baiduyun"
+}
 
