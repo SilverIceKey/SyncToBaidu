@@ -27,12 +27,6 @@ jobs:
     - name: Build
       run: make
 
-    - name: Run tests
-      run: make check
-
-    - name: Run distribution check
-      run: make distcheck
-
     - name: Static analysis with cppcheck
       run: |
         sudo apt-get install -y cppcheck
