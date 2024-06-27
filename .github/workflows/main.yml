@@ -49,6 +49,10 @@ jobs:
           export CFLAGS="-m64"
         elif [ "${{ matrix.arch }}" == "arm64" ]; then
           export CFLAGS="-march=armv8-a"
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            export CC=aarch64-linux-gnu-gcc
+            sudo apt-get install -y gcc-aarch64-linux-gnu
+          fi
         fi
         make
 
@@ -87,12 +91,6 @@ jobs:
       with:
         name: binary-ubuntu-latest-arm64
         path: ./binaries/ubuntu/arm64
-
-    - name: Download artifact for macOS x64
-      uses: actions/download-artifact@v3
-      with:
-        name: binary-macos-latest-x64
-        path: ./binaries/macos/x64
 
     - name: Download artifact for macOS arm64
       uses: actions/download-artifact@v3
@@ -145,16 +143,6 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./binaries/ubuntu/arm64/sync_to_baidu-ubuntu-latest-arm64
         asset_name: sync_to_baidu-ubuntu-latest-arm64
-        asset_content_type: application/octet-stream
-
-    - name: Upload Release Asset for macOS x64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./binaries/macos/x64/sync_to_baidu-macos-latest-x64
-        asset_name: sync_to_baidu-macos-latest-x64
         asset_content_type: application/octet-stream
 
     - name: Upload Release Asset for macOS arm64
