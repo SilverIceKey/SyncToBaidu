@@ -83,30 +83,6 @@ jobs:
         name: binary-ubuntu-latest-x64
         path: ./binaries/ubuntu/x64
 
-    - name: Download artifact for Linux arm64
-      uses: actions/download-artifact@v3
-      with:
-        name: binary-ubuntu-latest-arm64
-        path: ./binaries/ubuntu/arm64
-
-    - name: Download artifact for macOS arm64
-      uses: actions/download-artifact@v3
-      with:
-        name: binary-macos-latest-arm64
-        path: ./binaries/macos/arm64
-
-    - name: Download artifact for Windows x64
-      uses: actions/download-artifact@v3
-      with:
-        name: binary-windows-latest-x64
-        path: ./binaries/windows/x64
-
-    - name: Download artifact for Windows arm64
-      uses: actions/download-artifact@v3
-      with:
-        name: binary-windows-latest-arm64
-        path: ./binaries/windows/arm64
-
     - name: Read version
       id: get_version
       run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
@@ -130,44 +106,4 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./binaries/ubuntu/x64/sync_to_baidu-ubuntu-latest-x64
         asset_name: sync_to_baidu-ubuntu-latest-x64
-        asset_content_type: application/octet-stream
-
-    - name: Upload Release Asset for Linux arm64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./binaries/ubuntu/arm64/sync_to_baidu-ubuntu-latest-arm64
-        asset_name: sync_to_baidu-ubuntu-latest-arm64
-        asset_content_type: application/octet-stream
-
-    - name: Upload Release Asset for macOS arm64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./binaries/macos/arm64/sync_to_baidu-macos-latest-arm64
-        asset_name: sync_to_baidu-macos-latest-arm64
-        asset_content_type: application/octet-stream
-
-    - name: Upload Release Asset for Windows x64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./binaries/windows/x64/sync_to_baidu-windows-latest-x64.exe
-        asset_name: sync_to_baidu-windows-latest-x64.exe
-        asset_content_type: application/octet-stream
-
-    - name: Upload Release Asset for Windows arm64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./binaries/windows/arm64/sync_to_baidu-windows-latest-arm64.exe
-        asset_name: sync_to_baidu-windows-latest-arm64.exe
         asset_content_type: application/octet-stream
