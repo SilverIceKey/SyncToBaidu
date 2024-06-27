@@ -1,3 +1,4 @@
+#include <libconfig.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,7 +6,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <libconfig.h>
 
 #define CONFIG_FILE "/etc/sync_to_baidu/config.conf"
 #define LOG_FILE "/var/log/sync_to_baidu.log"
@@ -93,12 +93,14 @@ void load_config(const char *config_file) {
     const char *remote_dir_temp;
 
     if (config_lookup_string(&cfg, "Paths.sync_dir", &sync_dir_temp)) {
+        printf("从配置文件中读取的同步目录: %s\n", sync_dir_temp);
         strcpy(sync_dir, sync_dir_temp);
     } else {
         fprintf(stderr, "配置文件中没有 'sync_dir' 设置。\n");
     }
 
     if (config_lookup_string(&cfg, "Paths.remote_dir", &remote_dir_temp)) {
+        printf("从配置文件中读取的远程目录: %s\n", remote_dir_temp);
         strcpy(remote_dir, remote_dir_temp);
     } else {
         fprintf(stderr, "配置文件中没有 'remote_dir' 设置。\n");
