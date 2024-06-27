@@ -14,20 +14,45 @@ SyncToBaidu 是一个使用`bypy`同步本地目录到百度云的工具。该�
 
 1. 克隆或下载该仓库。
 
-2. 在 `SyncToBaidu` 目录下编译程序：
+2. 安装依赖项：
+
+### 在 Ubuntu 上安装依赖项
+
+    ```bash
+    sudo apt-get update
+    sudo apt-get install -y build-essential libconfig-dev python3 python3-pip
+    pip3 install bypy
+    ```
+
+### 在 macOS 上安装依赖项
+
+    ```bash
+    brew update
+    brew install libconfig python
+    pip3 install bypy
+    ```
+
+### 在 Windows 上安装依赖项
+
+    ```bash
+    choco install mingw -y
+    choco install python -y
+    pip install bypy
+    ```
+
+3. 在 `SyncToBaidu` 目录下编译程序：
 
     ```bash
     make
     ```
 
-3. 安装程序和配置文件：
+4. 安装程序和配置文件：
 
     ```bash
     sudo make install
     ```
 
     这将会：
-    - 安装 `libconfig` 和 `bypy`
     - 将编译后的可执行文件安装到 `/usr/local/bin/sync_to_baidu`
     - 创建配置文件目录 `/etc/sync_to_baidu`
     - 将默认的配置文件复制到 `/etc/sync_to_baidu/config.conf`
@@ -44,4 +69,25 @@ Paths = {
     sync_dir = "/path/to/syncDir"
     remote_dir = "/remote/path/on/baiduyun"
 }
+```
 
+## 使用
+程序会每4小时自动运行一次，扫描 syncDir 目录并将文件上传到百度云。你可以查看日志文件 /var/log/sync_to_baidu.log 以获取同步的详细信息。
+
+## 卸载
+
+如果需要卸载程序，可以运行以下命令：
+
+```bash
+sudo make uninstall
+```
+
+## 命令行参数
+
+- -h 或 --help：显示帮助信息并退出
+- -s 或 --schedule TIME：设置 crontab 计划任务时间（例如，"0 */4 * * *" 表示每4小时运行一次）
+
+```bash
+sync_to_baidu --help
+sync_to_baidu --schedule "0 */4 * * *"
+```
