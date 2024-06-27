@@ -23,10 +23,7 @@ jobs:
     - name: Set up Python dependencies
       run: |
         pip3 install bypy
-
-    - name: Configure
-      run: ./configure
-
+        
     - name: Build
       run: make
 
