@@ -23,8 +23,8 @@ install: $(TARGET)
 	fi
 
 	# 添加 crontab 任务
-	echo "0 */4 * * * /usr/local/bin/$(TARGET)" > $(CRON_JOB_FILE)
-	chmod 644 $(CRON_JOB_FILE)
+	#echo "0 */4 * * * /usr/local/bin/$(TARGET)" > $(CRON_JOB_FILE)
+	#chmod 644 $(CRON_JOB_FILE)
 
 uninstall:
 	rm -f /usr/local/bin/$(TARGET)

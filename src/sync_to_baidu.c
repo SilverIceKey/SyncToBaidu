@@ -110,14 +110,52 @@ void load_config(const char *config_file) {
 }
 
 void set_cron_schedule(const char *schedule) {
-    FILE *cron_file = fopen(CRON_JOB_FILE, "w");
-    if (!cron_file) {
-        perror("无法打开 cron 文件");
+    // 临时文件用于存储现有的和新的 cron 任务
+    FILE *temp_cron = fopen("/tmp/temp_cron", "w");
+    if (!temp_cron) {
+        perror("无法创建临时 cron 文件");
         exit(EXIT_FAILURE);
     }
 
-    fprintf(cron_file, "%s /usr/local/bin/sync_to_baidu\n", schedule);
-    fclose(cron_file);
+    // 使用 crontab -l 命令获取当前用户的 cron 任务
+    FILE *current_cron = popen("crontab -l", "r");
+    if (!current_cron) {
+        perror("无法读取当前的 cron 任务");
+        fclose(temp_cron);
+        exit(EXIT_FAILURE);
+    }
+
+    char line[256];
+    int task_found = 0;
+    while (fgets(line, sizeof(line), current_cron)) {
+        // 检查是否存在相同的任务
+        if (strstr(line, "/usr/local/bin/sync_to_baidu") == NULL) {
+            fputs(line, temp_cron); // 不是目标任务，写入临时文件
+        } else {
+            // 是目标任务，更新为新的时间表
+            fprintf(temp_cron, "%s /usr/local/bin/sync_to_baidu\n", schedule);
+            task_found = 1;
+        }
+    }
+    pclose(current_cron);
+
+    // 如果没有找到相同的任务，追加新任务
+    if (!task_found) {
+        fprintf(temp_cron, "%s /usr/local/bin/sync_to_baidu\n", schedule);
+    }
+
+    fclose(temp_cron);
+
+    // 使用 crontab 命令将临时文件设置为当前用户的 Crontab
+    if (system("crontab /tmp/temp_cron") == -1) {
+        perror("无法设置 cron 任务");
+        exit(EXIT_FAILURE);
+    }
+
+    // 删除临时文件
+    if (remove("/tmp/temp_cron") != 0) {
+        perror("无法删除临时 cron 文件");
+    }
 
     printf("Cron 计划任务已更新为: %s\n", schedule);
 }
@@ -159,4 +197,3 @@ int main(int argc, char *argv[]) {
     sync_directory(sync_dir, remote_dir);
     return 0;
 }
-
